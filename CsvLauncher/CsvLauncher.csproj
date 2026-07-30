@@ -7,9 +7,65 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <CredentialsJsonPath Condition="'$(CredentialsJsonPath)' == ''">$(MSBuildProjectDirectory)\..\credentials.json</CredentialsJsonPath>
+    <DistributionConfiguration Condition="'$(DistributionConfiguration)' == ''">Release</DistributionConfiguration>
+    <DistributionRuntimeIdentifier Condition="'$(DistributionRuntimeIdentifier)' == ''">win-x64</DistributionRuntimeIdentifier>
+    <DistributionSelfContained Condition="'$(DistributionSelfContained)' == ''">true</DistributionSelfContained>
+    <DistributionPublishSingleFile Condition="'$(DistributionPublishSingleFile)' == ''">true</DistributionPublishSingleFile>
+    <DistributionEnableCompressionInSingleFile Condition="'$(DistributionEnableCompressionInSingleFile)' == ''">true</DistributionEnableCompressionInSingleFile>
+    <DistributionIncludeSymbols Condition="'$(DistributionIncludeSymbols)' == ''">false</DistributionIncludeSymbols>
+    <DistributionDebugSymbols Condition="'$(DistributionIncludeSymbols)' == 'true'">true</DistributionDebugSymbols>
+    <DistributionDebugSymbols Condition="'$(DistributionIncludeSymbols)' != 'true'">false</DistributionDebugSymbols>
+    <DistributionDebugType Condition="'$(DistributionIncludeSymbols)' == 'true'">portable</DistributionDebugType>
+    <DistributionDebugType Condition="'$(DistributionIncludeSymbols)' != 'true'">None</DistributionDebugType>
+    <DistributionCopyOutputSymbolsToPublishDirectory Condition="'$(DistributionIncludeSymbols)' == 'true'">true</DistributionCopyOutputSymbolsToPublishDirectory>
+    <DistributionCopyOutputSymbolsToPublishDirectory Condition="'$(DistributionIncludeSymbols)' != 'true'">false</DistributionCopyOutputSymbolsToPublishDirectory>
+    <DistributionDir Condition="'$(DistributionDir)' == ''">$(MSBuildProjectDirectory)\..\dist\</DistributionDir>
+    <DistributionZipTempPath Condition="'$(DistributionZipTempPath)' == ''">$(BaseIntermediateOutputPath)CsvLauncher-$(Version).zip</DistributionZipTempPath>
+    <DistributionZipPath Condition="'$(DistributionZipPath)' == ''">$(DistributionDir)CsvLauncher-$(Version).zip</DistributionZipPath>
   </PropertyGroup>
 
+  <Target Name="ValidateCredentialsJson" BeforeTargets="GenerateEmbeddedOAuth">
+    <Error Condition="!Exists('$(CredentialsJsonPath)')"
+           Text="Build requires credentials.json. Expected path: $(CredentialsJsonPath)" />
+  </Target>
+
+  <Target Name="GenerateEmbeddedOAuth" DependsOnTargets="ValidateCredentialsJson" BeforeTargets="CoreCompile">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\scripts\embed-oauth.ps1&quot; -RootPath &quot;$(MSBuildProjectDirectory)\..&quot;" />
+  </Target>
+
+  <Target Name="PublishDistribution">
+    <Message Importance="high" Text="[1/5] Cleaning dist directory..." />
+    <RemoveDir Directories="$(DistributionDir)" Condition="Exists('$(DistributionDir)')" />
+    <MakeDir Directories="$(DistributionDir)" />
+
+    <Message Importance="high" Text="[2/5] Restoring and publishing CsvLauncher..." />
+    <MSBuild
+      Projects="$(MSBuildProjectFullPath)"
+      Targets="Restore;Publish"
+      Properties="Configuration=$(DistributionConfiguration);RuntimeIdentifier=$(DistributionRuntimeIdentifier);SelfContained=$(DistributionSelfContained);PublishSingleFile=$(DistributionPublishSingleFile);EnableCompressionInSingleFile=$(DistributionEnableCompressionInSingleFile);PublishDir=$(DistributionDir);DebugSymbols=$(DistributionDebugSymbols);DebugType=$(DistributionDebugType);CopyOutputSymbolsToPublishDirectory=$(DistributionCopyOutputSymbolsToPublishDirectory)" />
+
+    <Message Importance="high" Text="[3/5] Copying distribution support files..." />
+    <Copy
+      SourceFiles="$(MSBuildProjectDirectory)\..\scripts\setup.ps1;$(MSBuildProjectDirectory)\..\LICENSE;$(MSBuildProjectDirectory)\..\THIRD_PARTY_NOTICES.md"
+      DestinationFolder="$(DistributionDir)" />
+
+    <Message Importance="high" Text="[4/5] Cleaning distribution credentials.json..." />
+    <Delete Files="$(DistributionDir)credentials.json" Condition="Exists('$(DistributionDir)credentials.json')" />
+
+    <Message Importance="high" Text="[5/5] Creating distribution zip..." />
+    <Delete Files="$(DistributionZipTempPath)" Condition="Exists('$(DistributionZipTempPath)')" />
+    <Delete Files="$(DistributionZipPath)" Condition="Exists('$(DistributionZipPath)')" />
+    <ZipDirectory SourceDirectory="$(DistributionDir)" DestinationFile="$(DistributionZipTempPath)" Overwrite="true" />
+    <Copy SourceFiles="$(DistributionZipTempPath)" DestinationFiles="$(DistributionZipPath)" />
+
+    <Message Importance="high" Text="Build completed: dist/CsvLauncher.exe" />
+    <Message Importance="high" Text="Package created: dist/CsvLauncher-$(Version).zip" />
+  </Target>
+
   <ItemGroup>
+    <Compile Remove="EmbeddedGoogleOAuth.cs" />
+    <Compile Include="EmbeddedGoogleOAuth.cs" />
     <PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.75.0.4210" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
