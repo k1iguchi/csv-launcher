@@ -70,6 +70,22 @@ CsvLauncher.exe
 - 要件定義: [docs/要件定義書.md](docs/要件定義書.md)
 - 詳細仕様: [docs/詳細仕様書.md](docs/詳細仕様書.md)
 
+## GitHub Actions
+
+配布ビルドを GitHub Actions で実行する場合は、リポジトリ Secrets に次を設定してください。
+
+- GOOGLE_CLIENT_ID（必須）
+- GOOGLE_CLIENT_SECRET（必須）
+- GOOGLE_PROJECT_ID（任意）
+
+ワークフロー定義:
+- [.github/workflows/publish-distribution.yml](.github/workflows/publish-distribution.yml)
+
+このワークフローは Secrets から credentials.json を生成し、PublishDistribution ターゲットを実行して dist 成果物を Artifacts に保存します。
+
+タグ `v*`（例: `v1.0.1`）を push した場合は、同じワークフローで GitHub Release を作成し、`dist/CsvLauncher-<Version>.zip` を Release Assets に登録します。
+このとき、タグのバージョン（`vX.Y.Z`）と CsvLauncher.csproj の `<Version>` が一致しない場合はワークフローが失敗します。
+
 ## 注意
 
 - credentials.json はコミットしないこと
