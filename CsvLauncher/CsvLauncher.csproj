@@ -22,7 +22,7 @@
     <DistributionCopyOutputSymbolsToPublishDirectory Condition="'$(DistributionIncludeSymbols)' != 'true'">false</DistributionCopyOutputSymbolsToPublishDirectory>
     <DistributionDir Condition="'$(DistributionDir)' == ''">$(MSBuildProjectDirectory)\..\dist\</DistributionDir>
     <DistributionZipTempPath Condition="'$(DistributionZipTempPath)' == ''">$(BaseIntermediateOutputPath)CsvLauncher-$(Version).zip</DistributionZipTempPath>
-    <DistributionZipPath Condition="'$(DistributionZipPath)' == ''">$(DistributionDir)CsvLauncher-$(Version).zip</DistributionZipPath>
+    <DistributionZipPath Condition="'$(DistributionZipPath)' == ''">$(DistributionDir)\CsvLauncher-$(Version).zip</DistributionZipPath>
   </PropertyGroup>
 
   <Target Name="ValidateCredentialsJson" BeforeTargets="GenerateEmbeddedOAuth">
