@@ -46,6 +46,7 @@ if (-not [string]::IsNullOrWhiteSpace($FolderId)) {
 
 $commandValue = ('"{0}"{1} "%1"' -f $resolvedExePath, $folderArg)
 
+New-Item -Path $extensionKeyPath -Force | Out-Null
 New-Item -Path $progIdKeyPath -Force | Out-Null
 New-Item -Path "$progIdKeyPath\\shell\\open\\command" -Force | Out-Null
 Set-ItemProperty -Path $progIdKeyPath -Name '(default)' -Value 'CSV Launcher' | Out-Null
