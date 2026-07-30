@@ -9,8 +9,8 @@ internal static class AppOptionsParser
 {
     public static AppOptions Parse(string[] args)
     {
-        var csvPath = default(string);
-        var folderId = default(string);
+        string? csvPath = null;
+        string? folderId = null;
         var showHelp = false;
 
         foreach (var arg in args)
@@ -18,12 +18,6 @@ internal static class AppOptionsParser
             if (arg is "--help" or "-h" or "/?")
             {
                 showHelp = true;
-                continue;
-            }
-
-            // Windows shell may append this policy hint when launching associated files.
-            if (arg.StartsWith("--duplicate-policy=", StringComparison.OrdinalIgnoreCase))
-            {
                 continue;
             }
 
