@@ -13,10 +13,15 @@ CSV パスを省略して起動した場合は、空のスプレッドシート�
 ## ビルド
 
 1. リポジトリ直下に credentials.json を配置
-2. scripts/build.ps1 を実行
+2. CsvLauncher.csproj の PublishDistribution ターゲットを実行
+
+補足:
+- credentials.json がない状態でビルドすると失敗します。先にリポジトリ直下へ配置してください。
+- ビルド中に OAuth 情報を埋め込んだ CsvLauncher/EmbeddedGoogleOAuth.cs を自動生成します（生成ファイルは .gitignore 対象でコミットしません）。
+- 配布物の作成は PublishDistribution ターゲットを使用します。
 
 ```powershell
-.\scripts\build.ps1
+dotnet msbuild .\CsvLauncher\CsvLauncher.csproj -t:PublishDistribution
 ```
 
 成果物:
@@ -68,7 +73,7 @@ CsvLauncher.exe
 ## 注意
 
 - credentials.json はコミットしないこと
-- CsvLauncher/EmbeddedGoogleOAuth.cs は scripts/build.ps1 実行時に再生成される
+- CsvLauncher/EmbeddedGoogleOAuth.cs はビルド時生成物（.gitignore 対象）として扱うこと
 
 ## ライセンス
 

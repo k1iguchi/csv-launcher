@@ -17,5 +17,5 @@
 ## Secret Handling
 
 - `credentials.json` や `client_secret*.json` はコミット禁止
-- `CsvLauncher/EmbeddedGoogleOAuth.cs` はビルド時生成物として扱い、公開リポジトリでは保持しない運用を推奨
+- `CsvLauncher/EmbeddedGoogleOAuth.cs` はビルド時生成物として扱い、公開リポジトリでは保持しない
 - シークレット公開時は即時ローテーションする
