@@ -1,0 +1,21 @@
+# Build outputs
+bin/
+obj/
+dist/
+
+# IDE
+.vs/
+.vscode/
+
+# Secrets and local credentials
+credentials.json
+credential.json
+client_secret*.json
+*token.json
+
+# Generated OAuth embed file may contain secrets
+CsvLauncher/EmbeddedGoogleOAuth.cs
+
+# OS files
+Thumbs.db
+Desktop.ini
